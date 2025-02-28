@@ -2,6 +2,13 @@ import { useState } from "react";
 import axios from "axios";
 import "./SurveyForm.css"; // Importing the CSS file for styling
 
+const countries = [
+  "United States", "Canada", "United Kingdom", "Australia", "India", "Germany",
+  "France", "Italy", "Spain", "Brazil", "Mexico", "China", "Japan", "Russia",
+  "South Korea", "South Africa", "Nigeria", "Argentina", "Netherlands", "Sweden",
+  "Norway", "Denmark", "Finland", "Switzerland", "New Zealand"
+];
+
 function SurveyForm() {
   const [formData, setFormData] = useState({
     name: "",
@@ -21,7 +28,6 @@ function SurveyForm() {
     const { name, value } = e.target;
 
     if (name === "phone_number") {
-      // Allow only numbers and limit input to 10 digits
       if (!/^\d{0,10}$/.test(value)) return;
     }
 
@@ -32,21 +38,27 @@ function SurveyForm() {
   const validateForm = () => {
     let newErrors = {};
 
+    // Email validation
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
+      newErrors.email = "Invalid email format.";
+      alert("Please enter a valid email.");
+    }
+
     // Phone number validation (exactly 10 digits)
     if (!/^\d{10}$/.test(formData.phone_number)) {
       newErrors.phone_number = "Phone number must be exactly 10 digits.";
-      alert("Phone number must be exactly 10 digits."); // Show alert
+      alert("Phone number must be exactly 10 digits.");
     }
 
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0; // Return true if no errors
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (isDisabled) return;
-    if (!validateForm()) return; // Stop submission if errors exist
+    if (!validateForm()) return;
 
     try {
       setIsDisabled(true);
@@ -85,6 +97,8 @@ function SurveyForm() {
         <fieldset>
           <legend>Contact Information</legend>
           <input type="email" name="email" placeholder="Email" onChange={handleChange} required />
+          {errors.email && <span className="error">{errors.email}</span>}
+
           <input
             type="tel"
             name="phone_number"
@@ -95,7 +109,15 @@ function SurveyForm() {
           />
           {errors.phone_number && <span className="error">{errors.phone_number}</span>}
 
-          <input type="text" name="address" placeholder="Address" onChange={handleChange} required />
+          {/* Country Dropdown */}
+          <select name="address" onChange={handleChange} required>
+            <option value="">Select Country</option>
+            {countries.map((country, index) => (
+              <option key={index} value={country}>
+                {country}
+              </option>
+            ))}
+          </select>
         </fieldset>
 
         <fieldset>
